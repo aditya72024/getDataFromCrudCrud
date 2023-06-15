@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <title>Item Lister</title>
+</head>
+<body>
+
+      <div class="container">
+       <div id="main" class="card card-body">
+        <form id="addForm" class="">
+            <div class="row">
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <label for="email">Email </label>
+                    <input type="email" class="form-control" id="email">
+                </div>
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <label for="Name">Name </label>
+                    <input type="text" class="form-control" id="name">
+                </div>
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <label for="Phone">Phone </label>
+                    <input type="tel" class="form-control" id="phone">
+                </div>
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <input type="submit" class="btn btn-dark" value="Submit" style="margin-top: 13%;">
+                </div>
+            </div>
+
+          
+          
+        </form>
+        <h2 class="title">Data</h2>
+        <ul id="items" class="list-group">
+          
+        </ul>
+       </div>
+      </div>
+
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+
+<script>
+
+var form = document.getElementById("addForm");
+var ul = document.getElementById("items");
+var deleteItems = document.getElementsByClassName("delete");
+
+form.addEventListener('submit', addItem);
+ul.addEventListener('click', removeItem);
+// deleteItems = document.addEventListener('click', removeItem);
+
+
+window.addEventListener("DOMContentLoaded",()=>{
+  axios.get("https://crudcrud.com/api/b8bfb84cda4742c5b2fefd9921416d8e/app")
+  .then((response)=>{
+    for(var i = 0; i<response.data.length;i++){
+      showOutput(response.data[i]);
+    }
+  }).catch((err)=>console.log(err))
+
+})
+
+
+function showOutput(data){
+
+  
+  var email = JSON.parse(data.data).email;
+  var name = JSON.parse(data.data).name;
+  var phone = JSON.parse(data.data).phone;
+  var value = email + ',' + name + ',' + phone;
+  li = document.createElement("li");
+  li.className = 'list-group-item';
+  li.appendChild(document.createTextNode(value));
+
+  var deleteBtn = document.createElement('button');
+  deleteBtn.className = 'btn btn-primary btn-sm float-right delete';
+  deleteBtn.appendChild(document.createTextNode('Delete'));
+  li.appendChild(deleteBtn);
+
+  var editBtn = document.createElement('button');
+  editBtn.className = 'btn btn-primary btn-sm float-right edit';
+  editBtn.appendChild(document.createTextNode('Edit'));
+  li.appendChild(editBtn);
+
+  ul.appendChild(li);
+
+
+  console.log(value);
+}
+
+function addItem(e){
+    e.preventDefault();
+    var email = document.getElementById("email").value;
+    var name = document.getElementById("name").value;
+    var phone = document.getElementById("phone").value;
+    var value = email + ',' + name + ',' + phone;
+
+
+    li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.appendChild(document.createTextNode(value));
+
+    var deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-primary btn-sm float-right delete';
+    deleteBtn.appendChild(document.createTextNode('Delete'));
+    li.appendChild(deleteBtn);
+
+    var editBtn = document.createElement('button');
+    editBtn.className = 'btn btn-primary btn-sm float-right edit';
+    editBtn.appendChild(document.createTextNode('Edit'));
+    li.appendChild(editBtn);
+
+
+    ul.appendChild(li);
+
+
+    var entryObject = {};
+    entryObject.email = email;
+    entryObject.name = name;
+    entryObject.phone = phone;
+
+    storeInCurdCurd(JSON.stringify(entryObject))
+    // localStorage.setItem(email,JSON.stringify(entryObject));
+
+    document.getElementById("email").value = '';
+    document.getElementById("name").value = '';
+    document.getElementById("phone").value = '';
+
+
+}
+
+function storeInCurdCurd(data){
+  
+  axios.post("https://crudcrud.com/api/b8bfb84cda4742c5b2fefd9921416d8e/app",{data
+  }).then(res=>console.log(res)).catch(err=>console.error(err))
+}
+
+function removeItem(e){
+
+
+
+    if(e.target.classList.contains('delete') || e.target.classList.contains('edit'))
+    {
+        if(confirm("Are you sure?")){
+            var liRemove = e.target.parentElement;
+            var liRemoveEmail = liRemove.textContent.split(',')[0];
+            ul.removeChild(liRemove);
+            savedData = JSON.parse(localStorage.getItem(liRemoveEmail));
+            localStorage.removeItem(liRemoveEmail);
+            
+
+        }
+    }
+
+    if(e.target.classList.contains('edit'))
+    {
+         email = savedData.email;
+         name = savedData.name;
+         phone = savedData.phone;
+
+         document.getElementById("name").value = name;
+         document.getElementById("email").value = email;
+         document.getElementById("phone").value = phone;
+
+     }
+
+
+
+
+}
+
+
+</script>
+</html>
